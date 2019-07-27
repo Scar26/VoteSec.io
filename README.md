@@ -1,2 +1,7 @@
 # VoteSec.io
-An automated voting platform based on Azure Blockchain that offers complete anonymity, instantaneous results and a plethora of other features
+
+![votesec logo](https://i.imgur.com/sR4RJkb.png)
+
+
+Votesec.io will be a completely automated voting platform/API based on Azure Blockchain that means to serve as a realiable for conducting secure online polls/elections.
+
