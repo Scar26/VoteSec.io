@@ -27,8 +27,8 @@ Further tweaks could include individual votecookies for each candidate, allowing
 #
 Summing up, with this framework, we aim to achieve :
 
-a) A completely anonymous and automated polling environment, negating any form of rigging accusations.
+- A completely anonymous and automated polling environment, negating any form of rigging accusations.
 
-b) Realtime updates. Each vote that is cast is processed immediately, enabling realtime updates on the election and instantaneous results as soon as polling concludes.
+- Realtime updates. Each vote that is cast is processed immediately, enabling realtime updates on the election and instantaneous results as soon as polling concludes.
 
-c) A secure online voting platform that allows citizens to vote from anywhere, without physics presence at a polling booth
+- A secure online voting platform that allows citizens to vote from anywhere, without physics presence at a polling booth
