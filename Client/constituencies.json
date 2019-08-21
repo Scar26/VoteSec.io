@@ -1,0 +1,38 @@
+[
+   {
+    "id" : 0,
+    "name" : "Bikini Bottom",
+    "candidates" : [
+      {
+        "id" : 0,
+        "name" : "Salad Ass",
+        "party" : "Nazi Party",
+        "link" : "https://upload.wikimedia.org/wikipedia/commons/thumb/2/22/Flag_of_the_American_Nazi_Party.svg/1200px-Flag_of_the_American_Nazi_Party.svg.png"
+      },
+      {
+        "id" : 1,
+        "name" : "Black Donald Trump",
+        "party" : "KKKK",
+        "link" : "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c4/Knights_Party_flag.PNG/220px-Knights_Party_flag.PNG"
+      }
+    ]
+  },
+  {
+    "id" : 201007,
+    "name" : "Nether",
+    "candidates" : [
+      {
+        "id" : 2,
+        "name" : "Pewdiepie",
+        "party" : "KKKK",
+        "link" : "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c4/Knights_Party_flag.PNG/220px-Knights_Party_flag.PNG"
+      },
+      {
+        "id" : 3,
+        "name" : "Bloergen",
+        "party" : "Solid Meat Gang",
+        "link" : "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c4/Knights_Party_flag.PNG/220px-Knights_Party_flag.PNG"
+      }
+    ]
+  }
+]
