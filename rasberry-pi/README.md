@@ -1,5 +1,8 @@
-Copy the file startMidori.sh in home folder
+Using DietPi OS on raspberry pi
+
 ![alt text](https://github.com/Scar26/VoteSec.io/blob/master/rasberry-pi/Screenshot%202019-08-23%20at%2012.42.00%20AM.png)
+
+Copy the file startMidori.sh in home folder
 
 Make the script excecutable.
 
