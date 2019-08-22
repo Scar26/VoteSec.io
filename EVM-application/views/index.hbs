@@ -1,0 +1,107 @@
+<div class="title">
+	<div class="inner"> Welcome to Votesec.io </div> 
+</div>
+	<div class="container">
+		<div class="dummy2"></div>
+		<table id="table" class="w3-table-all w3-hoverable">
+			<thead>
+				<tr class="w3-light-grey">
+					<th>Election Symbol</th>
+					<th>Party Name</th>
+					<th>Candidate Name</th>
+					<th>VOTE</th>
+				</tr>
+			</thead>
+			<tbody id="tbody">
+			</tbody>
+		</table>
+		<div class="dummy">
+		</div>
+	</div>
+	<div class="loader">
+		<div class="message">Please get your Aadhaar QR and Fingerprint scanned
+		</div>
+		<div class="qr">
+			<span class="msg">QR Scan Status- </span>
+			<div id="QRcircle-loader" class="circle-loader">
+				<div id="QRcheckmark" class="checkmark draw"></div>
+			</div>
+		</div>
+		<div class="finger">
+			<span class="msg">Fingerprint Scan Status- </span>
+			<div id="FINGERcircle-loader" class="circle-loader">
+				<div id="FINGERcheckmark" class="checkmark draw"></div>
+			</div>
+		</div>
+	</div>
+	<script src="/socket.io/socket.io.js"></script>
+	<script>
+		var checkedRadio = null
+		var radioArray = []
+		var socket = io()
+		socket.on('success', function () {
+			console.log("SUCCESS: Vote casted")
+		})
+		socket.on('error', function (msg) {
+			console.log("ERROR: " + msg)
+		})
+		socket.on('candidateList', function (list) {
+			console.log("Candidate List - ")
+			console.log(list)
+			document.getElementById('table').style.visibility = 'visible'
+			let table = document.getElementById('tbody')
+			list.forEach(function (ele) {
+				let tr = document.createElement("tr")
+				table.appendChild(tr)
+
+				let td = document.createElement("td")
+				let img = documenfiret.createElement("img")
+				img.src = ele.link
+				img.height = 50;
+				img.width = 50;
+				td.appendChild(img)
+				tr.appendChild(td)
+
+				td = document.createElement("td")
+				td.innerHTML = ele.party + "<br>" + ele.party_local
+				tr.appendChild(td)
+
+				td = document.createElement("td");
+				td.innerHTML = ele.name + "<br>" + ele.name_local
+				tr.appendChild(td)
+
+				td = document.createElement("td");
+				let radio = document.createElement("input")
+				radio.type = "radio"
+				radio.value = ele.id
+				td.appendChild(radio)
+				radioArray.push(radio)
+				tr.appendChild(td)
+				tr.addEventListener("click", function () {
+					if (checkedRadio != null)
+						checkedRadio.checked = false
+					console.log("even listeener")
+					radio.checked = true
+					checkedRadio = radio
+				})
+			})
+			document.getElementsByClassName('inner')[0].style.borderBottom = 'none'
+			//document.getElementById('table').style.display = "block"
+		})
+		socket.on('veriFailed', function () {
+			console.log("Verification failed")
+		})
+		socket.on('qr', function (aadhaar) {
+			console.log(aadhaar.name)
+			$('#QRcircle-loader').toggleClass('load-complete');
+			$('#QRcheckmark').toggle();
+		})
+		socket.on('fingerprint', function () {
+			console.log("fingerprint aaya")
+			$('#FINGERcircle-loader').toggleClass('load-complete');
+			$('#FINGERcheckmark').toggle();
+		})
+		socket.on('verified', function () {
+			console.log("VERIFIED")
+		})
+	</script>
