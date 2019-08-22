@@ -1,4 +1,5 @@
 Copy the file startMidori.sh in home folder
+![alt text](http://url/to/img.png)
 
 Make the script excecutable.
 
