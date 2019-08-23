@@ -14,21 +14,26 @@ body {
     font-family: 'bebbas-b';
     src : url('../fonts/BebasNeue/BebasNeue-Book.ttf');
 }
+@font-face{
+  font-family: 'bebbas-r';
+  src : url('../fonts/BebasNeue/BebasNeue-Regular.ttf');
+}
 .container {
     margin: 0;
     padding: 0;
     height: 100vh;
     width: 100vw;
     display: grid;
-    grid-template-columns: 150px auto 150px;
+    grid-template-columns: 300px auto 300px;
     grid-template-rows: 30px 50px 1fr 100px 30px;
+    font-family: 'bebbas';
 }
 .title {
     font-family: 'bebbas';
     height: 80px;
     position: fixed;
-    padding-left:150px;
-    padding-right: 150px;
+    padding-left:300px;
+    padding-right: 300px;
     top:0px;
     left:0px;
     width: 100vw;
@@ -46,7 +51,6 @@ body {
     grid-area: 3 / 2 / 4 / 3;
     justify-self: stretch;
     width: 100%;
-    height: 100%;
     overflow-y: scroll;
     visibility: hidden;
 }
@@ -63,7 +67,7 @@ body {
     left: 0px;
     display: grid;
     width:100vw;
-    grid-template-columns: 150px 1fr 1fr 150px;
+    grid-template-columns: 300px 1fr 1fr 1fr 300px;
     grid-template-rows: 50px 50px;
     background-color: white;
 }
@@ -77,11 +81,29 @@ body {
 .finger {
     grid-area: 2 / 3 / 3 / 4;
 }
+.verify {
+  grid-area: 2 / 4 / 3 / 5;
+}
 .msg {
     display: inline-block;
     margin-top:12px;
     margin-right: 20px;
 }
+#button {
+    visibility: hidden;
+    padding:10px;
+    border: grey solid 1px;
+    border-radius: 5px;
+    position: fixed;
+    top:50%;
+    font-family: 'bebbas-r';
+    right: 150px;
+    width: 43px;
+    height: 43px;
+    transform: scale(2,2);
+    cursor: pointer;
+}
+
 .circle-loader {
   margin-bottom: 21.5px;
   border: 2px solid rgba(0, 0, 0, 0.2);
@@ -150,4 +172,7 @@ body {
     width: 10.75px;
     opacity: 1;
   }
+}
+#button .checkmark {
+  display: inline;
 }

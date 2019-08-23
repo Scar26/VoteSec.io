@@ -1,4 +1,8 @@
 'use strict'
+
+const getcansDomainName = '10.42.0.114:2050'
+const voteapiDomainName = '10.42.0.114:2050'
+
 var express = require('express');
 var path = require('path');
 // var favicon = require('serve-favicon');
@@ -30,41 +34,8 @@ app.use(bodyParser.urlencoded({ extended: false }));
 // app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-/***************************************/
-//app.use('/', routes);
-/*
-// catch 404 and forward to error handler
-app.use(function (req, res, next) {
-	var err = new Error('Not Found');
-	err.status = 404;
-	next(err);
-});
 
-// error handlers
-
-// development error handler
-// will print stacktrace
-if (app.get('env') === 'development') {
-	console.log("dev mode on")
-	app.use(function (err, req, res, next) {
-		res.status(err.status || 500);
-		res.render('error', {
-			message: err.message,
-			error: err
-		});
-	});
-}
-
-// production error handler
-// no stacktraces leaked to user
-app.use(function (err, req, res, next) {
-	res.status(err.status || 500);
-	res.render('error', {
-		message: err.message
-	});
-});
-*/
-function web3api(candidate, uid){
+function web3api(candidate, uid) {
 	/********DUMMY CODE********/
 	return true
 }
@@ -72,21 +43,37 @@ function web3api(candidate, uid){
 sockIO.on('connection', function (socket) {
 	client = socket
 	console.log('socket connection');
-	socket.on('disconnect', function () {
-		resetClient()
-	})
+	if (socket.handshake.address != '127.0.0.1')
+		socket.on('disconnect', function () {
+			resetClient()
+			client = null
+		})
 	socket.on('vote', function (candidate) {
 		console.log("Vote Received")
-		if(verified){
-			if(web3api(candidate, aadhaar.uid)) {
-				client.emit('success')
+		console.log("Fingerpring Post")
+		if (client != null) {
+			if (verified == true) {
+				/*request.post(
+					'http://' + voteapiDomainName + '/voteapi',
+					{ form: { vid: client.uid, cid: req.body.cid } },
+					function (error, response, body) {
+						console.log(error)
+						console.log(response)
+						if (!error && response.statusCode == 200) {
+							console.log(body);
+						}
+					}
+				);*/
+				client.emit('votereturn', 'VOTE CASTED')
 			}
 			else {
-				client.emit('error', 'web3api error')
+				client.emit('votereturn', 'VOTER NOT VERIFIED')
 			}
+			console.log("Resetting after VOTE")
+			resetClient();
 		}
 		else {
-			client.emit('error', 'client not verified')
+			res.render('error', { message: "ERROR: No client connection" })
 		}
 	})
 })
@@ -104,190 +91,140 @@ const ENCRYPTION_KEY = "m1cr0s0ft_z1nd4b4d_h3nt41_h4v3n_"; // Must be 256 bits (
 const IV_LENGTH = 16; // For AES, this is always 16
 
 function encrypt(text) {
- let iv = crypto.randomBytes(IV_LENGTH);
- let cipher = crypto.createCipheriv('aes-256-cbc', Buffer.from(ENCRYPTION_KEY), iv);
- let encrypted = cipher.update(text);
+	let iv = crypto.randomBytes(IV_LENGTH);
+	let cipher = crypto.createCipheriv('aes-256-cbc', Buffer.from(ENCRYPTION_KEY), iv);
+	let encrypted = cipher.update(text);
 
- encrypted = Buffer.concat([encrypted, cipher.final()]);
+	encrypted = Buffer.concat([encrypted, cipher.final()]);
 
- return iv.toString('hex') + ':' + encrypted.toString('hex');
+	return iv.toString('hex') + ':' + encrypted.toString('hex');
 }
 
 function decrypt(text) {
- let textParts = text.split(':');
- let iv = Buffer.from(textParts.shift(), 'hex');
- let encryptedText = Buffer.from(textParts.join(':'), 'hex');
- let decipher = crypto.createDecipheriv('aes-256-cbc', Buffer.from(ENCRYPTION_KEY), iv);
- let decrypted = decipher.update(encryptedText);
+	let textParts = text.split(':');
+	let iv = Buffer.from(textParts.shift(), 'hex');
+	let encryptedText = Buffer.from(textParts.join(':'), 'hex');
+	let decipher = crypto.createDecipheriv('aes-256-cbc', Buffer.from(ENCRYPTION_KEY), iv);
+	let decrypted = decipher.update(encryptedText);
 
- decrypted = Buffer.concat([decrypted, decipher.final()]);
+	decrypted = Buffer.concat([decrypted, decipher.final()]);
 
- return decrypted.toString();
+	return decrypted.toString();
 }
 
 
 function resetClient() {
 	console.log("Resetting Client socket")
 	fingerprint = null
-	client = null
 	aadhaar = null
 	verified = false
 }
 
 function getCandidateList(pc) {
 	console.log("Generating Candidate List")
-	/********DUMMY CODE********/
-	//var list
+	let list
 	console.log("pincode- " + pc)
 	request.post(
-		'http://10.42.0.114:2050/getcans',
+		'http://' + getcansDomainName + '/getcans',
 		{ form: { pin: "201007" } },
 		function (error, response, body) {
-			console.log(error)
-			console.log(response)
 			if (!error && response.statusCode == 200) {
 				console.log(body);
-			} 
+				list = JSON.parse(body).candidates
+				console.log("LOL", list)
+				if (client != null) {
+					client.emit('candidatelist', list)
+					verified = true
+				}
+				else {
+					resetClient()
+				}
+			}
 		}
 	);
-	/*list.push({
-		id: 42,
-		party: 'Nazi',
-		link: 'https://i.imgur.com/d0YO8I3.png',
-		name:'Pewdiepie',
-		party_local: 'नाजी',
-		name_local:'पीयूडीपाई'
-	})
-	list.push({
-		id: 69,
-		party: 'Democratic',
-		link: 'https://i.imgur.com/d0YO8I3.png',
-		name:'BlACK Donald trump',
-		party_local: 'डेमोक्रेटिक',
-		name_local:'ब्लेक डोनाल्ड ट्रम्प'
-	})
-	list.push({
-		id: 420,
-		party: 'INDEPENDENT',
-		link: 'https://i.imgur.com/d0YO8I3.png',
-		name:'Saladass',
-		party_local: 'स्वतंत्र',
-		name_local:'सैलेडैस',
-	})
-	list.push({
-		id: 42,
-		party: 'Nazi',
-		link: 'https://i.imgur.com/d0YO8I3.png',
-		name:'Pewdiepie',
-		party_local: 'नाजी',
-		name_local:'पीयूडीपाई'
-	})
-	list.push({
-		id: 69,
-		party: 'Democratic',
-		link: 'https://i.imgur.com/d0YO8I3.png',
-		name:'BlACK Donald trump',
-		party_local: 'डेमोक्रेटिक',
-		name_local:'ब्लेक डोनाल्ड ट्रम्प'
-	})
-	list.push({
-		id: 420,
-		party: 'INDEPENDENT',
-		link: 'https://i.imgur.com/d0YO8I3.png',
-		name:'Saladass',
-		party_local: 'स्वतंत्र',
-		name_local:'सैलेडैस',
-	})
-	list.push({
-		id: 42,
-		party: 'Nazi',
-		link: 'https://i.imgur.com/d0YO8I3.png',
-		name:'Pewdiepie',
-		party_local: 'नाजी',
-		name_local:'पीयूडीपाई'
-	})
-	list.push({
-		id: 69,
-		party: 'Democratic',
-		link: 'https://i.imgur.com/d0YO8I3.png',
-		name:'BlACK Donald trump',
-		party_local: 'डेमोक्रेटिक',
-		name_local:'ब्लेक डोनाल्ड ट्रम्प'
-	})
-	list.push({
-		id: 420,
-		party: 'INDEPENDENT',
-		link: 'https://i.imgur.com/d0YO8I3.png',
-		name:'Saladass',
-		party_local: 'स्वतंत्र',
-		name_local:'सैलेडैस',
-	})
-	list.push({
-		id: 42,
-		party: 'Nazi',
-		link: 'https://i.imgur.com/d0YO8I3.png',
-		name:'Pewdiepie',
-		party_local: 'नाजी',
-		name_local:'पीयूडीपाई'
-	})
-	list.push({
-		id: 69,
-		party: 'Democratic',
-		link: 'https://i.imgur.com/d0YO8I3.png',
-		name:'BlACK Donald trump',
-		party_local: 'डेमोक्रेटिक',
-		name_local:'ब्लेक डोनाल्ड ट्रम्प'
-	})
-	list.push({
-		id: 420,
-		party: 'INDEPENDENT',
-		link: 'https://i.imgur.com/d0YO8I3.png',
-		name:'Saladass',
-		party_local: 'स्वतंत्र',
-		name_local:'सैलेडैस',
-	})
-	return list*/
 }
+
+
+var privatekey =`-----BEGIN RSA PRIVATE KEY-----
+MIICXgIBAAKBgQCOxAtKOVqBMGdwzv8KLOaQokgXYAybp+bOZ8AGPx5XDj0c2Dfe
+tx/CdCU50xlJl0ueSrV7cq/mqEmas6Jz6wgwDr71XEy/eKnLNt6w/SOYHhBoDgjf
+753cwIzrfIF+P4zwE98hjDSS//8eOSyOfHpYlWPmqSJL9VYFGiTG4yJ2NwIDAQAB
+AoGBAIqsLnM4ZoraI3/V8LFHj+WpW/EooNaJLo4LBOCMasIQ2JeuBgbVRYoyGv6h
+6AwtY4wr8UAp1GZtzKDyH7gM8fOMGeMPrk6LtacnchxqFgLMKfzXlwM6QAi75ORK
+v2YtifTJfoSHv46wsHgIzDxHxDA/bT2XmkbERxz5IW27EGcBAkEA+EPGIHY+jKwS
+X1AY5+kQxTEjGRmWKvpGHCfLL2Lz5P6fj2GtvgTBGeWa7TZHwqwFnI+ajp8QkTNY
+wQVLPobkdwJBAJM2yEb87pqYaMDvYDUiJ6i8W9lKpSOrd3On9F0ogpB5uzGcJO9U
+4VUScLAvO3lCWBKiGuCMIlO2UCyzMmbSLEECQQCWSajRk+MPk0bX7gv1r9AYH0PI
++QU/5Ru2BZzphbRxRnZe/NmJcyVWQPlFahuMzEflW8VLWx1TWMr8pfDD3DLHAkB9
+fPBCGu9l1s9Mz4BqKoA2BMIius+EVXCQpTXXh2WstCfOxTRy0x71fq+Sb+C5n8Ul
+tQtGKA5G35z+TY6EOVpBAkEAsfOuq6eo74COoBe/v2I19Kjuf1Rh0+YLSqR28/9i
+qwvFPWylfVDAxqIcCtafgFSyEjtVtZg4COsOOTnODhU/mw==
+-----END RSA PRIVATE KEY-----`
+var publickey = `-----BEGIN PUBLIC KEY-----
+MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCOxAtKOVqBMGdwzv8KLOaQokgX
+YAybp+bOZ8AGPx5XDj0c2Dfetx/CdCU50xlJl0ueSrV7cq/mqEmas6Jz6wgwDr71
+XEy/eKnLNt6w/SOYHhBoDgjf753cwIzrfIF+P4zwE98hjDSS//8eOSyOfHpYlWPm
+qSJL9VYFGiTG4yJ2NwIDAQAB
+-----END PUBLIC KEY-----`
+
+
+function encrypt(toEncrypt) {
+	const buffer = Buffer.from(toEncrypt, 'utf8')
+	const encrypted = crypto.publicEncrypt(publickey, buffer)
+	return encrypted.toString('base64')
+  }
+  
+  function decrypt(toDecrypt) {
+	const buffer = Buffer.from(toDecrypt, 'base64')
+	const decrypted = crypto.privateDecrypt(
+	  {
+		key: privatekey,
+		passphrase: '',
+	  },
+	  buffer,
+	)
+	return decrypted.toString('utf8')
+  }
 
 function verify() {
 	console.log("Verify")
-	/********DUMMY VALUES********/
-	if(true && true) { 
-		client.emit('verified')
-		let list = getCandidateList(aadhaar.pc)
-		if(client != null) {
-			client.emit('candidateList', list)
-			verified = true
+	var url = 'https://votesec-cosmos-api.herokuapp.com/test';
+	//var url = 'http://10.42.0.114:4000/test';
+	console.log(fingerprint, ENCRYPTION_KEY)
+	var json = {vid: 1234, fprint: fingerprint}
+	request.post(
+		url,
+		{ form: { data: encrypt(JSON.stringify(json)), key:ENCRYPTION_KEY } }, //DUMMY ADD ENCRYPTION
+		function (error, response, body) {
+			console.log("in anon fxn")
+			console.log(response)
+			console.log(error)
+			if (!error && response.statusCode == 200) {
+				console.log(body);
+				if (body == 'VALID') {
+					client.emit('verified')
+					verified = true
+					getCandidateList(aadhaar.pc)
+				}
+				else if (body == 'INVALID') {
+					client.emit('verifailed')
+					resetClient()
+				}
+			}
 		}
-		else {
-			resetClient()
-		}
-	}
-	else {
-		client.emit('veriFailed')
-		resetClient()
-	}
+	);
 }
 
+
 var request = require('request');
-/*request.post(
-    'http://10.42.0.114:2050/getcans',
-    { form: { pin: encrypt("0") } },
-    function (error, response, body) {
-        if (!error && response.statusCode == 200) {
-            console.log(decrypt(body));
-        }
-    }
-);
-*/
 
 app.post('/qr', function (req, res, next) {
-	console.log("QR Post")
 	if (client != null) {
 		if (aadhaar == null) {
 			xmlparser(req.body.text, function (err, result) {
-				console.log(JSON.stringify(result.PrintLetterBarcodeData.$.uid))
-				aadhaar = result.PrintLetterBarcodeData.$
+				//console.log(JSON.stringify(result.PrintLetterBarcodeData.$.uid))
+				//aadhaar = result.PrintLetterBarcodeData.$
+				aadhaar = { name: "Manas", pc: "201007" }
 			})
 			res.render('error', { message: "SUCCESS: QR Stored" })
 			client.emit('qr', aadhaar)
@@ -326,8 +263,11 @@ app.post('/fingerprint', function (req, res, next) {
 
 app.get('/', function (req, res, next) {
 	console.log("Root Get")
-	if (client == null)
-		res.render('index', { title: 'form bharo' })
+	console.log(req.connection.remoteAddress)
+	if (!(req.connection.remoteAddress != '127.0.0.1' || req.connection.remoteAddress != "::1"))
+		res.render('error', { message: 'Illegal client' })
+	else if (client == null)
+		res.render('index')
 	else
 		res.render('error', { message: 'EVM already connected' })
 })
