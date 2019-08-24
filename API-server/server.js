@@ -15,13 +15,13 @@ const key = config.key;
 const IV_LENGTH = 16; // For AES, this is always 16
 const secert = 'm1cr0s0ft_z1nd4b4d_h3nt41_h4v3n_';
 function encrypt(text, ENCRYPTION_KEY) {
- let iv = crypto.randomBytes(IV_LENGTH);
- let cipher = crypto.createCipheriv('aes-256-cbc', Buffer.from(ENCRYPTION_KEY), iv);
- let encrypted = cipher.update(text);
+   let iv = crypto.randomBytes(IV_LENGTH);
+   let cipher = crypto.createCipheriv('aes-256-cbc', Buffer.from(ENCRYPTION_KEY), iv);
+   let encrypted = cipher.update(text);
 
- encrypted = Buffer.concat([encrypted, cipher.final()]);
+   encrypted = Buffer.concat([encrypted, cipher.final()]);
 
- return iv.toString('hex') + ':' + encrypted.toString('hex');
+   return iv.toString('hex') + ':' + encrypted.toString('hex');
 }
 
 function decrypt(text, ENCRYPTION_KEY) {
@@ -53,16 +53,20 @@ election = new web3.eth.Contract(abiobj, contract_addr , {from : defaultAccount}
 
 console.log('web3 initialized');
 constituencies = JSON.parse(fs.readFileSync('constituencies.json')); //We decided to go with json for storing the constituencies list because it will be faster to have the entire tree as a state variable of the server, and this is all public information anyway.
+allowed_machines = JSON.parse(fs.readFileSync('ips.json')); //list of whitelisted ips
 concount = constituencies.length;
+console.log(constituencies);
+console.log(concount);
 app.post('/getcans',function(req,res){
     if(typeof req.body.pin == 'string'){
       pin = req.body.pin;
       if(parseInt(pin)>=0){
         console.log('request ayi');
         console.log(pin);
-        index = -1
+        index = -1;
         for(i=0;i<concount;i++){
-          if(constituencies[i]==pin.toString()){
+          console.log(constituencies[i].id);
+          if(constituencies[i].id.toString()==pin.toString()){
             index = i;
             break;
           }
@@ -70,7 +74,7 @@ app.post('/getcans',function(req,res){
         if(index == -1){
           res.status(400).send("Uh oh something went wrong");
         }
-        res.send(JSON.stringify(constituencies[parseInt(pin)]));
+        res.send(JSON.stringify(constituencies[index]));
       }
   }
   else{
@@ -79,31 +83,13 @@ app.post('/getcans',function(req,res){
 });
 
 app.post('/voteapi',function(req,res){
-  election.methods.castVote(78, 1).send({from : defaultAccount},function(e,r){ console.log(r) });
-});
-
-const client = new CosmosClient({ endpoint, key });
-
-async function queryContainer(val) {
-  const querySpec = {
-     query: 'SELECT * FROM voters r WHERE r.id = @vid',
-     parameters: [
-         {
-             name: "@vid",
-             value: val
-         }
-     ]
- };
-
- const { resources } = await client.database('voters').container('voters').items.query(querySpec, {enableCrossPartitionQuery:true}).fetchAll();
- console.log(resources[0].name);
- result = resources[0];
- return result;
-};
-
-app.post('/verify',function(req,res){
-  var vid = req.body.vid;
-  var con = req.body.con;
-  details = queryContainer(vid);
-  if()
+  // if(allowed_machines.includes(request.connection.remoteAddress.toString())){
+    vid = decrypt(req.body.vid,secert);
+    cid = decrypt(req.body.cid,secert);
+    election.methods.castVote(vid, cid).send({from : defaultAccount},function(e,r){ console.log(r) });
+    details = queryContainer(vid);
+  //  }
+  // else{
+  //   res.status(404).send("Something went wrong")
+  // }
 });
