@@ -1,0 +1,24 @@
+{
+  "name": "central-server",
+  "version": "1.0.0",
+  "description": "central-server for votesec.io",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node --nolazy --inspect-brk=9229 bin/www"
+  },
+  "author": "manaschaudhary2000@gmail.com",
+  "license": "MIT",
+  "dependencies": {
+    "body-parser": "^1.19.0",
+    "cookie-parser": "^1.4.4",
+    "crypto-js": "^3.1.9-1",
+    "express": "^4.17.1",
+    "express-handlebars": "^3.1.0",
+    "handlebars": "^4.1.2",
+    "morgan": "^1.9.1",
+    "serve-favicon": "^2.5.0",
+    "socket.io": "^2.2.0",
+    "xml2js": "^0.4.19"
+  }
+}
