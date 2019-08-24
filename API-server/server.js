@@ -11,6 +11,7 @@ const CosmosClient = require('@azure/cosmos').CosmosClient;
 const config = require('./config');
 const endpoint = config.endpoint;
 const key = config.key;
+const request = require('request')
 
 const IV_LENGTH = 16; // For AES, this is always 16
 const secert = 'm1cr0s0ft_z1nd4b4d_h3nt41_h4v3n_';
@@ -57,6 +58,32 @@ allowed_machines = JSON.parse(fs.readFileSync('ips.json')); //list of whiteliste
 concount = constituencies.length;
 console.log(constituencies);
 console.log(concount);
+
+function verify(v,f) {
+	console.log("Verify")
+	var url = 'https://votesec-cosmos-api.herokuapp.com/test';
+	var json = {vid: v, fprint: f}
+
+	request.post(
+		url,
+		{ form: { data: encrypt(JSON.stringify(json)), key:secert } }, //DUMMY ADD ENCRYPTION
+		function (error, response, body) {
+			console.log("in anon fxn")
+			console.log(response)
+			console.log(error)
+			if (!error && response.statusCode == 200) {
+				console.log(body);
+				if (body == 'VALID') {
+					return true;
+				}
+				else{
+					return false;
+				}
+			}
+		}
+	);
+}
+
 app.post('/getcans',function(req,res){
     if(typeof req.body.pin == 'string'){
       pin = req.body.pin;
@@ -84,10 +111,12 @@ app.post('/getcans',function(req,res){
 
 app.post('/voteapi',function(req,res){
   // if(allowed_machines.includes(request.connection.remoteAddress.toString())){
-    vid = decrypt(req.body.vid,secert);
-    cid = decrypt(req.body.cid,secert);
+    vid = JSON.parse(decrypt(req.body.data,secert)).vid;
+    cid = JSON.parse(decrypt(req.body.data,secert)).cid;
+    fprint = JSON.parse(decrypt(req.body.data,secert)).fprint;
     election.methods.castVote(vid, cid).send({from : defaultAccount},function(e,r){ console.log(r) });
     details = queryContainer(vid);
+    verification = verify(vid,fprint);
   //  }
   // else{
   //   res.status(404).send("Something went wrong")

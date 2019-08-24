@@ -1,6 +1,6 @@
 'use strict'
 
-const getcansDomainName = '10.42.0.114:2050'
+const getcansDomainName = '10.42.0.114:2050' //have to be changed according to the set-up
 const voteapiDomainName = '10.42.0.114:2050'
 
 var express = require('express');
@@ -53,9 +53,9 @@ sockIO.on('connection', function (socket) {
 		console.log("Fingerpring Post")
 		if (client != null) {
 			if (verified == true) {
-				/*request.post(
+				request.post(
 					'http://' + voteapiDomainName + '/voteapi',
-					{ form: { vid: client.uid, cid: req.body.cid } },
+					{ form: {data : encrypt(JSON.stringify({ vid: client.uid, cid: candidate , fprint: fingerprint}),ENCRYPTION_KEY)} },
 					function (error, response, body) {
 						console.log(error)
 						console.log(response)
@@ -63,7 +63,7 @@ sockIO.on('connection', function (socket) {
 							console.log(body);
 						}
 					}
-				);*/
+				);
 				client.emit('votereturn', 'VOTE CASTED')
 			}
 			else {
@@ -145,35 +145,12 @@ function getCandidateList(pc) {
 }
 
 
-var privatekey =`-----BEGIN RSA PRIVATE KEY-----
-MIICXgIBAAKBgQCOxAtKOVqBMGdwzv8KLOaQokgXYAybp+bOZ8AGPx5XDj0c2Dfe
-tx/CdCU50xlJl0ueSrV7cq/mqEmas6Jz6wgwDr71XEy/eKnLNt6w/SOYHhBoDgjf
-753cwIzrfIF+P4zwE98hjDSS//8eOSyOfHpYlWPmqSJL9VYFGiTG4yJ2NwIDAQAB
-AoGBAIqsLnM4ZoraI3/V8LFHj+WpW/EooNaJLo4LBOCMasIQ2JeuBgbVRYoyGv6h
-6AwtY4wr8UAp1GZtzKDyH7gM8fOMGeMPrk6LtacnchxqFgLMKfzXlwM6QAi75ORK
-v2YtifTJfoSHv46wsHgIzDxHxDA/bT2XmkbERxz5IW27EGcBAkEA+EPGIHY+jKwS
-X1AY5+kQxTEjGRmWKvpGHCfLL2Lz5P6fj2GtvgTBGeWa7TZHwqwFnI+ajp8QkTNY
-wQVLPobkdwJBAJM2yEb87pqYaMDvYDUiJ6i8W9lKpSOrd3On9F0ogpB5uzGcJO9U
-4VUScLAvO3lCWBKiGuCMIlO2UCyzMmbSLEECQQCWSajRk+MPk0bX7gv1r9AYH0PI
-+QU/5Ru2BZzphbRxRnZe/NmJcyVWQPlFahuMzEflW8VLWx1TWMr8pfDD3DLHAkB9
-fPBCGu9l1s9Mz4BqKoA2BMIius+EVXCQpTXXh2WstCfOxTRy0x71fq+Sb+C5n8Ul
-tQtGKA5G35z+TY6EOVpBAkEAsfOuq6eo74COoBe/v2I19Kjuf1Rh0+YLSqR28/9i
-qwvFPWylfVDAxqIcCtafgFSyEjtVtZg4COsOOTnODhU/mw==
------END RSA PRIVATE KEY-----`
-var publickey = `-----BEGIN PUBLIC KEY-----
-MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCOxAtKOVqBMGdwzv8KLOaQokgX
-YAybp+bOZ8AGPx5XDj0c2Dfetx/CdCU50xlJl0ueSrV7cq/mqEmas6Jz6wgwDr71
-XEy/eKnLNt6w/SOYHhBoDgjf753cwIzrfIF+P4zwE98hjDSS//8eOSyOfHpYlWPm
-qSJL9VYFGiTG4yJ2NwIDAQAB
------END PUBLIC KEY-----`
-
-
 function encrypt(toEncrypt) {
 	const buffer = Buffer.from(toEncrypt, 'utf8')
 	const encrypted = crypto.publicEncrypt(publickey, buffer)
 	return encrypted.toString('base64')
   }
-  
+
   function decrypt(toDecrypt) {
 	const buffer = Buffer.from(toDecrypt, 'base64')
 	const decrypted = crypto.privateDecrypt(
@@ -189,7 +166,6 @@ function encrypt(toEncrypt) {
 function verify() {
 	console.log("Verify")
 	var url = 'https://votesec-cosmos-api.herokuapp.com/test';
-	//var url = 'http://10.42.0.114:4000/test';
 	console.log(fingerprint, ENCRYPTION_KEY)
 	var json = {vid: 1234, fprint: fingerprint}
 	request.post(
