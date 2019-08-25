@@ -55,12 +55,13 @@ sockIO.on('connection', function (socket) {
 			if (verified == true) {
 				request.post(
 					'http://' + voteapiDomainName + '/voteapi',
-					{ form: {data : encrypt(JSON.stringify({ vid: client.uid, cid: candidate , fprint: fingerprint}),ENCRYPTION_KEY)} },
+					{ form: {data : encrypt(JSON.stringify({ vid: aadhaar.uid, cid: candidate , fprint: fingerprint}),ENCRYPTION_KEY)} },
 					function (error, response, body) {
 						console.log(error)
 						console.log(response)
 						if (!error && response.statusCode == 200) {
 							console.log(body);
+							client.emit('votereturn', 'VOTE CASTED')
 						}
 					}
 				);
@@ -126,7 +127,7 @@ function getCandidateList(pc) {
 	console.log("pincode- " + pc)
 	request.post(
 		'http://' + getcansDomainName + '/getcans',
-		{ form: { pin: "201007" } },
+		{ form: { pin: pc } },
 		function (error, response, body) {
 			if (!error && response.statusCode == 200) {
 				console.log(body);
@@ -143,15 +144,21 @@ function getCandidateList(pc) {
 		}
 	);
 }
+var publickey = `-----BEGIN PUBLIC KEY-----
+MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCOxAtKOVqBMGdwzv8KLOaQokgX
+YAybp+bOZ8AGPx5XDj0c2Dfetx/CdCU50xlJl0ueSrV7cq/mqEmas6Jz6wgwDr71
+XEy/eKnLNt6w/SOYHhBoDgjf753cwIzrfIF+P4zwE98hjDSS//8eOSyOfHpYlWPm
+qSJL9VYFGiTG4yJ2NwIDAQAB
+-----END PUBLIC KEY-----`
 
 
-function encrypt(toEncrypt) {
+function encryptRSA(toEncrypt) {
 	const buffer = Buffer.from(toEncrypt, 'utf8')
 	const encrypted = crypto.publicEncrypt(publickey, buffer)
 	return encrypted.toString('base64')
   }
 
-  function decrypt(toDecrypt) {
+  function decryptRSA(toDecrypt) {
 	const buffer = Buffer.from(toDecrypt, 'base64')
 	const decrypted = crypto.privateDecrypt(
 	  {
@@ -170,7 +177,7 @@ function verify() {
 	var json = {vid: 1234, fprint: fingerprint}
 	request.post(
 		url,
-		{ form: { data: encrypt(JSON.stringify(json)), key:ENCRYPTION_KEY } }, //DUMMY ADD ENCRYPTION
+		{ form: { data: encryptRSA(JSON.stringify(json)), key:ENCRYPTION_KEY } }, //DUMMY ADD ENCRYPTION
 		function (error, response, body) {
 			console.log("in anon fxn")
 			console.log(response)
@@ -198,9 +205,9 @@ app.post('/qr', function (req, res, next) {
 	if (client != null) {
 		if (aadhaar == null) {
 			xmlparser(req.body.text, function (err, result) {
-				//console.log(JSON.stringify(result.PrintLetterBarcodeData.$.uid))
-				//aadhaar = result.PrintLetterBarcodeData.$
-				aadhaar = { name: "Manas", pc: "201007" }
+				console.log(JSON.stringify(result.PrintLetterBarcodeData.$.uid))
+				aadhaar = result.PrintLetterBarcodeData.$
+				//aadhaar = { name: "Manas", pc: "201007" }
 			})
 			res.render('error', { message: "SUCCESS: QR Stored" })
 			client.emit('qr', aadhaar)
