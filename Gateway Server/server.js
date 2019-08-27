@@ -110,7 +110,7 @@ app.post('/getcans',function(req,res){
 });
 
 app.post('/voteapi',function(req,res){
-  // if(allowed_machines.includes(request.connection.remoteAddress.toString())){
+  if(allowed_machines.includes(request.connection.remoteAddress.toString())){
     vid = JSON.parse(decrypt(req.body.data,secert)).vid;
     cid = JSON.parse(decrypt(req.body.data,secert)).cid;
     var md5sum = crypto.createHash('md5');
@@ -121,8 +121,8 @@ app.post('/voteapi',function(req,res){
     election.methods.castVote(vid, cid).send({from : defaultAccount},function(e,r){ console.log(r) });
     details = queryContainer(vid);
     verification = verify(vid,fprint);
-  //  }
-  // else{
-  //   res.status(404).send("Something went wrong")
-  // }
+   }
+  else{
+    res.status(404).send("Something went wrong");
+  }
 });
