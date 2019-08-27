@@ -10,7 +10,7 @@ contract Election{
   mapping(uint => bool) private voted;
   mapping(uint => Candidate) public candidates;
   uint32 public cancount;
-  address private admin;
+  address private _owner;
 
   modifier onlyOwner {
     require(msg.sender == _owner);
@@ -18,13 +18,13 @@ contract Election{
   }
 
   constructor() public{
+    _owner = msg.sender;
   	newCandidate('Bajendra Modi');
   	newCandidate('Pappu');
   	newCandidate('Jejriwal');
-  	admin = msg.sender;
   }
 
-  function castVote(string memory vid, uint cid) public onlyOwner returns(string memory){
+  function castVote(uint vid, uint cid) public onlyOwner returns(string memory){
 
       if(voted[vid] != true){
         voted[vid] = true;
@@ -33,7 +33,7 @@ contract Election{
       return "Your vote has been recorded successfully";
 }
 
-  function newCandidate(string memory _name) private onlyOwner{
+  function newCandidate(string memory _name) private{
     candidates[cancount] = Candidate(cancount, _name, 0);
     cancount++;
   }
@@ -42,8 +42,8 @@ contract Election{
     candidates[_id].votes++;
   }
 
-  function concludeElection() onlyOwner private returns(bool success) {
-  owner = address(0);
+  function concludeElection() onlyOwner public returns(bool success) {
+  _owner = address(0);
   return true;
 }
 }

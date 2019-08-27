@@ -2,6 +2,8 @@
 #
 **Votesec.io** will be a completely automated voting API based on Azure Blockchain that means to serve as a reliable platform for conducting secure online polls/elections.
 
+#demonstration : www.happyhearts.tk
+
 The primary asset of votesec.io is the assurance of complete anonymity. No data concerning the voters is stored in a way that can be traced back to the individual, at any point during the process. This, coupled with the innate security of Azure Blockchain creates a polling environment that ensures the privacy of everyone involved under all possible circumstances. 
 
 Votesec keeps no records of who voted and who didn't, let alone "who voted for who" while still filtering all user input to ensure no one votes more than once and allowing regional voting patterns to be made publicly available.
