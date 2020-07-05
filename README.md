@@ -1,8 +1,7 @@
 ![votesec logo](https://i.imgur.com/R8rFtyq.png)
 #
-**Votesec.io** will be a completely automated voting API based on Azure Blockchain that means to serve as a reliable platform for conducting secure online polls/elections.
-
-#demonstration : www.happyhearts.tk
+##Video demonstration: https://www.youtube.com/watch?v=UfROfYdQjcY
+**Votesec.io** is a completely automated voting API based on Azure Blockchain that means to serve as a reliable platform for conducting secure online polls/elections.
 
 The primary asset of votesec.io is the assurance of complete anonymity. No data concerning the voters is stored in a way that can be traced back to the individual, at any point during the process. This, coupled with the innate security of Azure Blockchain creates a polling environment that ensures the privacy of everyone involved under all possible circumstances. 
 
@@ -22,7 +21,7 @@ Here, their identifier(in this case, adhaar) is converted into an irreversible f
 ![conversion](https://i.imgur.com/iX1vva2.png)
 Muffins are designed such that they are also valid inputs for the function that handles **votecookie**.
 
-VoteCookie is a state variable of the contract which information about all muffins. Given a muffin, it's possible to verify whether or not it's already contained in the VoteCookie, meaning the same person won't be able to vote twice. This whole process is to be optimized to be faster and less memory consuming than simply using a table of hashed Adhaar numbers.
+VoteCookie is a state variable of the contract which information about all muffins. Given a muffin, it's possible to verify whether or not it's already contained in the VoteCookie, meaning the same person won't be able to vote twice
 
 Further tweaks could include individual votecookies for each candidate, allowing the voters to later verify who their vote went to, via a quick linear search.
 
