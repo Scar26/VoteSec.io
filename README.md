@@ -1,6 +1,6 @@
 ![votesec logo](https://i.imgur.com/R8rFtyq.png)
 #
-##Video demonstration: https://www.youtube.com/watch?v=UfROfYdQjcY
+# Video demonstration: https://www.youtube.com/watch?v=UfROfYdQjcY
 **Votesec.io** is a completely automated voting API based on Azure Blockchain that means to serve as a reliable platform for conducting secure online polls/elections.
 
 The primary asset of votesec.io is the assurance of complete anonymity. No data concerning the voters is stored in a way that can be traced back to the individual, at any point during the process. This, coupled with the innate security of Azure Blockchain creates a polling environment that ensures the privacy of everyone involved under all possible circumstances. 
